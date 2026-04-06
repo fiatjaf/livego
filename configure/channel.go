@@ -19,7 +19,7 @@ var RoomKeys = RoomKeysType{
 	keyToChannel: xsync.NewMapOf[string, string](),
 }
 
-// set/reset a random key for channel
+// reset a random key for channel
 func (r *RoomKeysType) SetKey(channel string) (key string, err error) {
 	for {
 		key = uid.RandStringRunes(48)
@@ -28,6 +28,17 @@ func (r *RoomKeysType) SetKey(channel string) (key string, err error) {
 			r.keyToChannel.Store(key, channel)
 			break
 		}
+	}
+	return
+}
+
+// set a random key for channel
+func (r *RoomKeysType) SetCustomKey(channel string, key string) (err error) {
+	if existingChannel, found := r.keyToChannel.Load(key); !found {
+		r.channelToKey.Store(channel, key)
+		r.keyToChannel.Store(key, channel)
+	} else if channel != existingChannel {
+		return fmt.Errorf("key already being used on channel %s", existingChannel)
 	}
 	return
 }
