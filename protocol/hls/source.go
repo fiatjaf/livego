@@ -3,8 +3,9 @@ package hls
 import (
 	"bytes"
 	"fmt"
-	"github.com/gwuhaolin/livego/configure"
 	"time"
+
+	"github.com/gwuhaolin/livego/configure"
 
 	"github.com/gwuhaolin/livego/av"
 	"github.com/gwuhaolin/livego/container/flv"
@@ -38,6 +39,7 @@ type Source struct {
 	tsparser    *parser.CodecParser
 	closed      bool
 	packetQueue chan *av.Packet
+	basePath    string
 }
 
 func NewSource(info av.Info) *Source {
@@ -195,7 +197,7 @@ func (source *Source) cut() {
 		source.flushAudio()
 
 		source.seq++
-		filename := fmt.Sprintf("/%s/%d.ts", source.info.Key, time.Now().Unix())
+		filename := fmt.Sprintf("%s/%s/%d.ts", source.basePath, source.info.Key, time.Now().Unix())
 		item := NewTSItem(filename, int(source.stat.durationMs()), source.seq, source.btswriter.Bytes())
 		source.tsCache.SetItem(filename, item)
 
@@ -254,6 +256,7 @@ func (source *Source) calcPtsDts(isVideo bool, ts, compositionTs uint32) {
 		source.pts = source.dts
 	}
 }
+
 func (source *Source) flushAudio() error {
 	return source.muxAudio(1)
 }

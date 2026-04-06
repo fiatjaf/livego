@@ -37,6 +37,7 @@ var crossdomainxml = []byte(`<?xml version="1.0" ?>
 type Server struct {
 	listener net.Listener
 	conns    *sync.Map
+	BasePath string
 }
 
 func NewServer() *Server {
@@ -69,6 +70,7 @@ func (server *Server) GetWriter(info av.Info) av.WriteCloser {
 	if !ok {
 		log.Debug("new hls source")
 		s = NewSource(info)
+		s.basePath = server.BasePath
 		server.conns.Store(info.Key, s)
 	} else {
 		s = v.(*Source)
@@ -152,13 +154,13 @@ func (server *Server) Handle(w http.ResponseWriter, r *http.Request) {
 }
 
 func (server *Server) parseM3u8(pathstr string) (key string, err error) {
-	pathstr = strings.TrimLeft(pathstr, "/")
+	pathstr = strings.TrimPrefix(pathstr, server.BasePath+"/")
 	key = strings.Split(pathstr, path.Ext(pathstr))[0]
 	return
 }
 
 func (server *Server) parseTs(pathstr string) (key string, err error) {
-	pathstr = strings.TrimLeft(pathstr, "/")
+	pathstr = strings.TrimPrefix(pathstr, server.BasePath+"/")
 	paths := strings.SplitN(pathstr, "/", 3)
 	if len(paths) != 3 {
 		err = fmt.Errorf("invalid path=%s", pathstr)
