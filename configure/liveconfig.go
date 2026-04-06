@@ -50,8 +50,6 @@ type ServerCfg struct {
 	HLSAddr         string       `mapstructure:"hls_addr"`
 	HLSKeepAfterEnd bool         `mapstructure:"hls_keep_after_end"`
 	APIAddr         string       `mapstructure:"api_addr"`
-	RedisAddr       string       `mapstructure:"redis_addr"`
-	RedisPwd        string       `mapstructure:"redis_pwd"`
 	ReadTimeout     int          `mapstructure:"read_timeout"`
 	WriteTimeout    int          `mapstructure:"write_timeout"`
 	EnableTLSVerify bool         `mapstructure:"enable_tls_verify"`
@@ -108,8 +106,6 @@ func init() {
 }
 
 func initDefault() {
-	defer Init()
-
 	// Default config
 	b, _ := json.Marshal(defaultConf)
 	defaultConfig := bytes.NewReader(b)
