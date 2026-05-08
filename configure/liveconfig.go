@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/kr/pretty"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -136,10 +135,7 @@ func initDefault() {
 	Config.SetConfigFile(Config.GetString("config_file"))
 	Config.AddConfigPath(".")
 	err := Config.ReadInConfig()
-	if err != nil {
-		log.Warning(err)
-		log.Info("Using default config")
-	} else {
+	if err == nil {
 		Config.MergeInConfig()
 	}
 
@@ -151,11 +147,6 @@ func initDefault() {
 
 	// Log
 	initLog()
-
-	// Print final config
-	c := ServerCfg{}
-	Config.Unmarshal(&c)
-	log.Debugf("Current configurations: \n%# v", pretty.Formatter(c))
 }
 
 func CheckAppName(appname string) bool {
